@@ -1,0 +1,6 @@
+virtualenv
+
+# Video files
+*.mkv
+*.mp4
+*.avi
