@@ -1,13 +1,34 @@
 import cv2
-import mediapipe as mp
 import os
+import mediapipe as mp
+from mediapipe.tasks import python
+from mediapipe.tasks.python import vision
+from mediapipe import solutions
+from mediapipe.framework.formats import landmark_pb2
+import numpy as np
+import matplotlib.pyplot as plt
 
-# Initialize MediaPipe Face Detection
-mp_face_detection = mp.solutions.face_detection
-mp_drawing = mp.solutions.drawing_utils
+
+mp_drawing = solutions.drawing_utils
+
+BaseOptions = python.BaseOptions
+FaceLandmarker = mp.tasks.vision.FaceLandmarker
+FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
+VisionRunningMode = mp.tasks.vision.RunningMode
+
+model_path = 'face_landmarker.task'
+
+# Create a face landmarker instance with the video mode:
+options = FaceLandmarkerOptions(
+    base_options=BaseOptions(model_asset_path=model_path),
+    running_mode=VisionRunningMode.VIDEO)
 
 
-def occlude_faces(input_video_path=None, output_video_path=None, show=True):
+def occlude_faces(input_video_path=None, output_video_path=None, show=True, targets=set()):
+    # Features to occlude
+    features = {'FACE', 'LEFT_EYE', 'RIGHT_EYE',
+                'LEFT_EYEBROW', 'RIGHT_EYEBROW', 'NOSE', 'MOUTH'}
+
     # Open the input video
     cap = cv2.VideoCapture(input_video_path if input_video_path else 0)
 
@@ -23,38 +44,47 @@ def occlude_faces(input_video_path=None, output_video_path=None, show=True):
                               (frame_width, frame_height))
 
     # Initialize MediaPipe face detection
-    with mp_face_detection.FaceDetection(model_selection=1, min_detection_confidence=0.5) as face_detection:
+    with FaceLandmarker.create_from_options(options) as landmarker:
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
                 break
 
-            # Convert the BGR image to RGB
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            # Convert frame to MediaPipe Image object
+            mp_image = mp.Image(
+                image_format=mp.ImageFormat.SRGB, data=frame)
 
-            # Process the frame and detect faces
-            results = face_detection.process(rgb_frame)
+            # Get the current frame timestamp in milliseconds
+            frame_timestamp_ms = int(cap.get(
+                cv2.CAP_PROP_POS_MSEC))
 
-            if results.detections:
-                for detection in results.detections:
-                    # Get the bounding box coordinates
-                    bboxC = detection.location_data.relative_bounding_box
-                    h, w, _ = frame.shape
-                    x_min = int(bboxC.xmin * w)
-                    y_min = int(bboxC.ymin * h)
-                    box_width = int(bboxC.width * w)
-                    box_height = int(bboxC.height * h)
+            # Process the frame and detect face landmarks
+            results = landmarker.detect_for_video(
+                mp_image, frame_timestamp_ms)
 
-                    # Draw a black rectangle over the face
-                    cv2.rectangle(frame, (x_min, y_min), (x_min +
-                                  box_width, y_min + box_height), (0, 0, 0), -1)
+            occluded_frame = np.copy(mp_image.numpy_view())
+            if results.face_landmarks:
+                for face_landmarks in results.face_landmarks:
+                    face_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
+                    face_landmarks_proto.landmark.extend([
+                        landmark_pb2.NormalizedLandmark(
+                            x=landmark.x, y=landmark.y, z=landmark.z)
+                        for landmark in face_landmarks
+                    ])
+                    solutions.drawing_utils.draw_landmarks(
+                        image=occluded_frame,
+                        landmark_list=face_landmarks_proto,
+                        connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
+                        landmark_drawing_spec=None,
+                        connection_drawing_spec=mp.solutions.drawing_styles
+                        .get_default_face_mesh_tesselation_style())
 
             # Write the frame to the output video
             if output_video_path:
-                out.write(frame)
+                out.write(occluded_frame)
 
             if show:
-                cv2.imshow('frame', frame)
+                cv2.imshow('frame', occluded_frame)
                 key = cv2.waitKey(1)
 
     # Release the video capture and writer objects
