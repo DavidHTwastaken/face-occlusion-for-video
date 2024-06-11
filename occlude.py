@@ -5,9 +5,10 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
+from mediapipe.python.solutions.drawing_utils import DrawingSpec
 import numpy as np
 import matplotlib.pyplot as plt
-
+from draw_landmarks_modified import occlude_landmarks
 
 mp_drawing = solutions.drawing_utils
 
@@ -24,11 +25,7 @@ options = FaceLandmarkerOptions(
     running_mode=VisionRunningMode.VIDEO)
 
 
-def occlude_faces(input_video_path=None, output_video_path=None, show=True, targets=set()):
-    # Features to occlude
-    features = {'FACE', 'LEFT_EYE', 'RIGHT_EYE',
-                'LEFT_EYEBROW', 'RIGHT_EYEBROW', 'NOSE', 'MOUTH'}
-
+def occlude_faces(input_video_path=None, output_video_path=None, show=True):
     # Open the input video
     cap = cv2.VideoCapture(input_video_path if input_video_path else 0)
 
@@ -71,13 +68,20 @@ def occlude_faces(input_video_path=None, output_video_path=None, show=True, targ
                             x=landmark.x, y=landmark.y, z=landmark.z)
                         for landmark in face_landmarks
                     ])
-                    solutions.drawing_utils.draw_landmarks(
+                    # solutions.drawing_utils.draw_landmarks(
+                    #     image=occluded_frame,
+                    #     landmark_list=face_landmarks_proto,
+                    #     connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
+                    #     landmark_drawing_spec=None,
+                    #     connection_drawing_spec=mp.solutions.drawing_styles
+                    #     .get_default_face_mesh_tesselation_style())
+                    occlude_landmarks(
                         image=occluded_frame,
                         landmark_list=face_landmarks_proto,
-                        connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
-                        landmark_drawing_spec=None,
-                        connection_drawing_spec=mp.solutions.drawing_styles
-                        .get_default_face_mesh_tesselation_style())
+                        connections=mp.solutions.face_mesh.FACEMESH_LIPS,
+                        connection_drawing_spec=DrawingSpec(
+                            color=(0, 0, 0), thickness=1),
+                        landmark_drawing_spec=None)
 
             # Write the frame to the output video
             if output_video_path:
