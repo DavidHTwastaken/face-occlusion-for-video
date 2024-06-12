@@ -24,6 +24,19 @@ options = FaceLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=model_path),
     running_mode=VisionRunningMode.VIDEO)
 
+feature_dict = {
+    "face": mp.solutions.face_mesh.FACEMESH_TESSELATION,
+    "lips": mp.solutions.face_mesh.FACEMESH_LIPS,
+    "left_eye": mp.solutions.face_mesh.FACEMESH_LEFT_EYE,
+    "right_eye": mp.solutions.face_mesh.FACEMESH_RIGHT_EYE,
+    "left_eyebrow": mp.solutions.face_mesh.FACEMESH_LEFT_EYEBROW,
+    "right_eyebrow": mp.solutions.face_mesh.FACEMESH_RIGHT_EYEBROW,
+    "left_pupil": mp.solutions.face_mesh.FACEMESH_LEFT_IRIS,
+    "right_pupil": mp.solutions.face_mesh.FACEMESH_RIGHT_IRIS,
+    "nose": mp.solutions.face_mesh.FACEMESH_NOSE,
+    "oval": mp.solutions.face_mesh.FACEMESH_FACE_OVAL
+}
+
 
 def occlude_faces(input_video_path=None, output_video_path=None, show=True):
     # Open the input video
@@ -42,6 +55,7 @@ def occlude_faces(input_video_path=None, output_video_path=None, show=True):
 
     # Initialize MediaPipe face detection
     with FaceLandmarker.create_from_options(options) as landmarker:
+        selected_features = {"face"}
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
@@ -75,13 +89,14 @@ def occlude_faces(input_video_path=None, output_video_path=None, show=True):
                     #     landmark_drawing_spec=None,
                     #     connection_drawing_spec=mp.solutions.drawing_styles
                     #     .get_default_face_mesh_tesselation_style())
-                    occlude_landmarks(
-                        image=occluded_frame,
-                        landmark_list=face_landmarks_proto,
-                        connections=mp.solutions.face_mesh.FACEMESH_LIPS,
-                        connection_drawing_spec=DrawingSpec(
-                            color=(0, 0, 0), thickness=1),
-                        landmark_drawing_spec=None)
+                    for feature in selected_features:
+                        occlude_landmarks(
+                            image=occluded_frame,
+                            landmark_list=face_landmarks_proto,
+                            connections=feature_dict[feature],
+                            connection_drawing_spec=DrawingSpec(
+                                color=(0, 0, 0), thickness=1),
+                            landmark_drawing_spec=None)
 
             # Write the frame to the output video
             if output_video_path:
@@ -90,11 +105,32 @@ def occlude_faces(input_video_path=None, output_video_path=None, show=True):
             if show:
                 cv2.imshow('frame', occluded_frame)
                 key = cv2.waitKey(1)
+                if key == ord('q'):
+                    break
+
+                def toggle_feature(feature):
+                    if feature in selected_features:
+                        selected_features.remove(feature)
+                    else:
+                        selected_features.add(feature)
+
+                if key == ord('f'):
+                    toggle_feature("face")
+                if key == ord('l'):
+                    toggle_feature("lips")
+                if key == ord('e'):
+                    toggle_feature("left_eye")
+                    toggle_feature("right_eye")
+                if key == ord('n'):
+                    toggle_feature("nose")
+                if key == ord('o'):
+                    toggle_feature("oval")
 
     # Release the video capture and writer objects
     cap.release()
-    out.release()
-    print(f"Processed video saved as {output_video_path}")
+    if output_video_path:
+        out.release()
+        print(f"Processed video saved as {output_video_path}")
 
 
 # Example usage
