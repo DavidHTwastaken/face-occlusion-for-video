@@ -146,8 +146,11 @@ def occlude_landmarks(
                 point_set.add(connection[0])
                 point_set.add(connection[1])
         points = np.array([idx_to_coordinates[i] for i in point_set])
-        hull = cv2.convexHull(points)
-        cv2.fillConvexPoly(image, hull, (0, 0, 0))
+        try:
+            hull = cv2.convexHull(points)
+            cv2.fillConvexPoly(image, hull, (0, 0, 0))
+        except cv2.error:
+            print("Error: Could not draw convex hull: ", points)
     # Draws landmark points after finishing the connection lines, which is
     # aesthetically better.
     if is_drawing_landmarks and landmark_drawing_spec:
