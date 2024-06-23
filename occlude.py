@@ -38,7 +38,7 @@ feature_dict = {
 }
 
 
-def occlude_faces(input_video_path=None, output_video_path=None, show=True):
+def occlude_faces(input_video_path: str = None, output_video_path: str = None, show=True, hints=True):
     # Open the input video
     cap = cv2.VideoCapture(input_video_path if input_video_path else 0)
 
@@ -52,6 +52,14 @@ def occlude_faces(input_video_path=None, output_video_path=None, show=True):
     if output_video_path:
         out = cv2.VideoWriter(output_video_path, codec, fps,
                               (frame_width, frame_height))
+
+    if show and hints:
+        print("Press 'f' to toggle face landmarks")
+        print("Press 'l' to toggle lips landmarks")
+        print("Press 'e' to toggle eye landmarks")
+        print("Press 'n' to toggle nose landmarks")
+        print("Press 'o' to toggle oval landmarks")
+        print("Press 'q' to quit")
 
     # Initialize MediaPipe face detection
     with FaceLandmarker.create_from_options(options) as landmarker:
@@ -138,4 +146,4 @@ def occlude_faces(input_video_path=None, output_video_path=None, show=True):
 # occlude_faces(os.path.join('..', 'TestFiles', 'input.mkv'), 'output_video.mkv')
 
 # From webcam
-occlude_faces(show=True)
+# occlude_faces(show=True)
