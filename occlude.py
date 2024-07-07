@@ -9,6 +9,7 @@ from mediapipe.python.solutions.drawing_utils import DrawingSpec
 import numpy as np
 import matplotlib.pyplot as plt
 from draw_landmarks_modified import occlude_landmarks
+import ffmpeg
 
 mp_drawing = solutions.drawing_utils
 

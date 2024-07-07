@@ -3,8 +3,10 @@ attrs==23.2.0
 cffi==1.16.0
 contourpy==1.2.1
 cycler==0.12.1
+ffmpeg-python==0.2.0
 flatbuffers==24.3.25
 fonttools==4.52.4
+future==1.0.0
 jax==0.4.28
 jaxlib==0.4.28
 kiwisolver==1.4.5
