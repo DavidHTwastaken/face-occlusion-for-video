@@ -91,13 +91,6 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
                             x=landmark.x, y=landmark.y, z=landmark.z)
                         for landmark in face_landmarks
                     ])
-                    # solutions.drawing_utils.draw_landmarks(
-                    #     image=occluded_frame,
-                    #     landmark_list=face_landmarks_proto,
-                    #     connections=mp.solutions.face_mesh.FACEMESH_TESSELATION,
-                    #     landmark_drawing_spec=None,
-                    #     connection_drawing_spec=mp.solutions.drawing_styles
-                    #     .get_default_face_mesh_tesselation_style())
                     for feature in selected_features:
                         occlude_landmarks(
                             image=occluded_frame,
