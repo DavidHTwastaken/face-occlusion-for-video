@@ -9,7 +9,8 @@ from mediapipe.python.solutions.drawing_utils import DrawingSpec
 import numpy as np
 import matplotlib.pyplot as plt
 from draw_landmarks_modified import occlude_landmarks
-import ffmpeg
+from moviepy.editor import VideoClip, AudioClip
+
 
 mp_drawing = solutions.drawing_utils
 
@@ -135,6 +136,12 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
         print(f"Processed video saved as {output_video_path}")
 
 
+def combine_audio(video_path: str, audio_path: str, output_path: str):
+    video = VideoClip(video_path)
+    audio = AudioClip(audio_path)
+    video = video.set_audio(audio)
+    video.write_videofile(output_path, codec='libx264',
+                          audio_codec='libmp3lame')
 # Example usage
 # From file
 # occlude_faces(os.path.join('..', 'TestFiles', 'input.mkv'), 'output_video.mkv')
