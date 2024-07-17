@@ -9,7 +9,7 @@ from mediapipe.python.solutions.drawing_utils import DrawingSpec
 import numpy as np
 import matplotlib.pyplot as plt
 from draw_landmarks_modified import occlude_landmarks
-from moviepy.editor import VideoClip, AudioClip
+from moviepy.editor import VideoFileClip
 
 
 mp_drawing = solutions.drawing_utils
@@ -26,6 +26,7 @@ options = FaceLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=model_path),
     running_mode=VisionRunningMode.VIDEO)
 
+# Mapping of keywords to MediaPipe face mesh features
 feature_dict = {
     "face": mp.solutions.face_mesh.FACEMESH_TESSELATION,
     "lips": mp.solutions.face_mesh.FACEMESH_LIPS,
@@ -136,12 +137,28 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
         print(f"Processed video saved as {output_video_path}")
 
 
-def combine_audio(video_path: str, audio_path: str, output_path: str):
-    video = VideoClip(video_path)
-    audio = AudioClip(audio_path)
-    video = video.set_audio(audio)
-    video.write_videofile(output_path, codec='libx264',
-                          audio_codec='libmp3lame')
+def integrate_audio(original_video, output_video, audio_path=os.path.join('tmp', 'audio.mp3')):
+    '''
+    Extracts audio from the original video and integrates it into the output video. This
+    function was copied from the AWS Rekognition Video People Blurring CDK project. \n
+    Source:  https://github.com/aws-samples/rekognition-video-people-blurring-cdk/blob/main/stack/lambdas/rekopoc-apply-faces-to-video-docker/video_processor.py
+    '''
+    # Extract audio
+    my_clip = VideoFileClip(original_video)
+    my_clip.audio.write_audiofile(audio_path)
+    print('finished writing audio to temp file')
+    temp_location = os.path.join('tmp', 'output_video.mp4')
+    # Join output video with extracted audio
+    videoclip = VideoFileClip(output_video)
+    # new_audioclip = CompositeAudioClip([audioclip])
+    # videoclip.audio = new_audioclip
+    videoclip.write_videofile(
+        temp_location, codec='libx264', audio=audio_path, audio_codec='libmp3lame')
+
+    os.rename(temp_location, output_video)
+    # Delete audio
+    os.remove(audio_path)
+
 # Example usage
 # From file
 # occlude_faces(os.path.join('..', 'TestFiles', 'input.mkv'), 'output_video.mkv')
