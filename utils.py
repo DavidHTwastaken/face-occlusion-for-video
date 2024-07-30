@@ -2,7 +2,7 @@ import os
 import shutil
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename, askdirectory
-from occlude import occlude_faces
+from occlude import occlude_faces, integrate_audio
 import time
 
 
@@ -38,12 +38,16 @@ def make_video_copies(video_path, num_copies, file_path_prefix=""):
         print(f"Copy {i+1} created: {new_file_name}")
 
 
-def process_videos(suffix="", count_time=False):
+def handle_video_processing(suffix="", count_time=False):
+    files = askopenfilename(initialdir='.', multiple=True)
+    output_folder = askdirectory(initialdir='.')
+    return process_videos(files, output_folder, suffix, count_time)
+
+
+def process_videos(files, output_folder, suffix="", count_time=False, keep_audio=False):
     results = ProcessResults()
     if count_time:
         results.total_duration = 0
-    files = askopenfilename(initialdir='.', multiple=True)
-    output_folder = askdirectory(initialdir='.')
     for index, filepath in enumerate(files):
         if count_time:
             start_time = time.time()
@@ -52,8 +56,11 @@ def process_videos(suffix="", count_time=False):
         filename, file_extension = os.path.splitext(file)
         output_path = os.path.join(
             output_folder, f'{filename}{suffix}{VALID_FILE_EXTENSION}')
+        print(output_path)
         occlude_faces(input_video_path=filepath,
                       output_video_path=output_path, show=False)
+        if keep_audio:
+            integrate_audio(filepath, output_path)
         if count_time:
             time_taken = time.time() - start_time
             results.total_duration += time_taken

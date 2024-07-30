@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, Tk, StringVar
 from tkinter import ttk
+from utils import process_videos
 
 
 class App(ttk.Frame):
@@ -9,16 +10,18 @@ class App(ttk.Frame):
         self.config(padding=10)
         self.pack()
 
+        self.selected_files = []
         self.selected_files_var = StringVar()
         self.selected_files_count = StringVar()
+        self.selected_output_dir = StringVar()
 
         # Label
         label = ttk.Label(self, text="Occlude Faces in Video")
         label.pack()
         # Input files button
-        button = ttk.Button(self, text="Select input videos",
-                            command=self.select_videos)
-        button.pack()
+        input_files_button = ttk.Button(self, text="Select input videos",
+                                        command=self.select_videos)
+        input_files_button.pack()
         # Input files list
         self.input_files = ttk.Entry(
             self, width=50, textvariable=self.selected_files_var, state='readonly')
@@ -26,15 +29,32 @@ class App(ttk.Frame):
         number_of_files = ttk.Label(
             self, textvariable=self.selected_files_count)
         number_of_files.pack()
+        # Output directory button
+        output_dir_button = ttk.Button(self, text="Select output directory",
+                                       command=self.select_output_dir)
+        output_dir_button.pack()
+        # Output directory
+        self.output_dir = ttk.Entry(
+            self, width=50, state='readonly', textvariable=self.selected_output_dir)
+        self.output_dir.pack()
+        # Occlude videos button
+        occlude_button = ttk.Button(self, text="Occlude faces",
+                                    command=lambda: process_videos(self.selected_files,
+                                                                   self.selected_output_dir.get()))
+        occlude_button.pack()
 
     def select_videos(self):
-        selected_files = filedialog.askopenfilenames(
+        self.selected_files = filedialog.askopenfilenames(
             filetypes=[("Video files", "*.mp4")])
         text = ', '.join(
-            selected_files) if selected_files else "No files selected"
+            self.selected_files) if self.selected_files else "No files selected"
         self.selected_files_var.set(text)
         self.selected_files_count.set(
-            f"Number of files: {len(selected_files)}")
+            f"Number of files: {len(self.selected_files)}")
+
+    def select_output_dir(self):
+        selected_dir = filedialog.askdirectory()
+        self.selected_output_dir.set(selected_dir)
 
 
 def main():
