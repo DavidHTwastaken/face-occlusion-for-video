@@ -44,7 +44,7 @@ def handle_video_processing(suffix="", count_time=False):
     return process_videos(files, output_folder, suffix, count_time)
 
 
-def process_videos(files, output_folder, suffix="", count_time=False, keep_audio=False):
+def process_videos(files, output_folder, suffix="", count_time=False, keep_audio=False, show=False):
     results = ProcessResults()
     if count_time:
         results.total_duration = 0
@@ -58,7 +58,7 @@ def process_videos(files, output_folder, suffix="", count_time=False, keep_audio
             output_folder, f'{filename}{suffix}{VALID_FILE_EXTENSION}')
         print(output_path)
         occlude_faces(input_video_path=filepath,
-                      output_video_path=output_path, show=False)
+                      output_video_path=output_path, show=show)
         if keep_audio:
             integrate_audio(filepath, output_path)
         if count_time:
@@ -67,6 +67,11 @@ def process_videos(files, output_folder, suffix="", count_time=False, keep_audio
             print(f"Time taken to process video: {time_taken} seconds")
     print(f"All videos processed and can be found in: {output_folder}")
     return results
+
+
+def process_camera(output=None, show=False):
+    occlude_faces(output_video_path=output, show=show)
+    integrate_audio(output, output)
 
 
 def main():

@@ -61,7 +61,7 @@ def main():
     # Root
     root = Tk()
     root.title("Occlude Faces in Video")
-    root.geometry("400x200")
+    root.geometry("600x400")
     # Main frame
     app = App(root)
     root.mainloop()

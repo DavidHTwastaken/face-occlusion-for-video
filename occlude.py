@@ -137,7 +137,7 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
         print(f"Processed video saved as {output_video_path}")
 
 
-def integrate_audio(original_video, output_video, audio_path=os.path.join('tmp', 'audio.mp3')):
+def integrate_audio(original_video: str, output_video: str, audio_path=os.path.join('tmp', 'audio.mp3')):
     '''
     Extracts audio from the original video and integrates it into the output video. This
     function was copied from the AWS Rekognition Video People Blurring CDK project. \n
