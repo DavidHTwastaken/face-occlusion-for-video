@@ -19,11 +19,11 @@ FaceLandmarker = mp.tasks.vision.FaceLandmarker
 FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
 VisionRunningMode = mp.tasks.vision.RunningMode
 
-model_path = 'face_landmarker.task'
+MODEL_PATH = 'face_landmarker.task'
 
 # Create a face landmarker instance with the video mode:
 options = FaceLandmarkerOptions(
-    base_options=BaseOptions(model_asset_path=model_path),
+    base_options=BaseOptions(model_asset_path=MODEL_PATH),
     running_mode=VisionRunningMode.VIDEO)
 
 # Mapping of keywords to MediaPipe face mesh features
@@ -41,7 +41,7 @@ feature_dict = {
 }
 
 
-def occlude_faces(input_video_path: str = None, output_video_path: str = None, show=True, hints=True):
+def occlude_faces(input_video_path: str = None, output_video_path: str = None, show=False, hints=False):
     # Open the input video
     cap = cv2.VideoCapture(input_video_path if input_video_path else 0)
 
@@ -150,8 +150,6 @@ def integrate_audio(original_video: str, output_video: str, audio_path=os.path.j
     temp_location = os.path.join('tmp', 'output_video.mp4')
     # Join output video with extracted audio
     videoclip = VideoFileClip(output_video)
-    # new_audioclip = CompositeAudioClip([audioclip])
-    # videoclip.audio = new_audioclip
     videoclip.write_videofile(
         temp_location, codec='libx264', audio=audio_path, audio_codec='libmp3lame')
 

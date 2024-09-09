@@ -69,8 +69,8 @@ def process_videos(files, output_folder, suffix="", count_time=False, keep_audio
     return results
 
 
-def process_video(input: str, output: str, keep_audio=False):
-    occlude_faces(input_video_path=input, output_video_path=output)
+def process_video(input: str, output: str, keep_audio=False, show=False):
+    occlude_faces(input_video_path=input, output_video_path=output, show=show)
     if keep_audio:
         integrate_audio(input, output)
 
