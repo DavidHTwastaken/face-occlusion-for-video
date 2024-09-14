@@ -44,7 +44,7 @@ def handle_video_processing(suffix="", count_time=False):
     return process_videos(files, output_folder, suffix, count_time)
 
 
-def process_videos(files, output_folder, suffix="", count_time=False, keep_audio=False, show=False):
+def process_videos(files, output_folder, suffix="", count_time=False, keep_audio=False, show=False, features={'face'}):
     results = ProcessResults()
     if count_time:
         results.total_duration = 0
@@ -55,10 +55,10 @@ def process_videos(files, output_folder, suffix="", count_time=False, keep_audio
         file = os.path.basename(filepath)
         filename, file_extension = os.path.splitext(file)
         output_path = os.path.join(
-            output_folder, f'{filename}{suffix}{VALID_FILE_EXTENSION}')
+            output_folder, f'{filename}{suffix}{file_extension}')
         print(output_path)
         occlude_faces(input_video_path=filepath,
-                      output_video_path=output_path, show=show)
+                      output_video_path=output_path, show=show, features=features)
         if keep_audio:
             integrate_audio(filepath, output_path)
         if count_time:
@@ -69,14 +69,15 @@ def process_videos(files, output_folder, suffix="", count_time=False, keep_audio
     return results
 
 
-def process_video(input: str, output: str, keep_audio=False, show=False):
-    occlude_faces(input_video_path=input, output_video_path=output, show=show)
+def process_video(input: str, output: str, keep_audio=False, show=False, features={'face'}):
+    occlude_faces(input_video_path=input, output_video_path=output,
+                  show=show, features=features)
     if keep_audio:
         integrate_audio(input, output)
 
 
-def process_camera(output=None, show=False):
-    occlude_faces(output_video_path=output, show=show)
+def process_camera(output=None, show=False, features={'face'}):
+    occlude_faces(output_video_path=output, show=show, features=features)
     # TODO: Figure out how to get audio from camera feed
     # if keep_audio:
     #     integrate_audio(output, output)

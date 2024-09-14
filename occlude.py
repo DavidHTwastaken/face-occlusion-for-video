@@ -2,12 +2,10 @@ import cv2
 import os
 import mediapipe as mp
 from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 from mediapipe.python.solutions.drawing_utils import DrawingSpec
 import numpy as np
-import matplotlib.pyplot as plt
 from draw_landmarks_modified import occlude_landmarks
 from moviepy.editor import VideoFileClip
 
@@ -27,7 +25,7 @@ options = FaceLandmarkerOptions(
     running_mode=VisionRunningMode.VIDEO)
 
 # Mapping of keywords to MediaPipe face mesh features
-feature_dict = {
+FEATURE_MAP = {
     "face": mp.solutions.face_mesh.FACEMESH_TESSELATION,
     "lips": mp.solutions.face_mesh.FACEMESH_LIPS,
     "left_eye": mp.solutions.face_mesh.FACEMESH_LEFT_EYE,
@@ -40,8 +38,10 @@ feature_dict = {
     "oval": mp.solutions.face_mesh.FACEMESH_FACE_OVAL
 }
 
+CODEC = 'XVID'
 
-def occlude_faces(input_video_path: str = None, output_video_path: str = None, show=False, hints=False):
+
+def occlude_faces(input_video_path: str = None, output_video_path: str = None, show=False, features=['face']):
     # Open the input video
     cap = cv2.VideoCapture(input_video_path if input_video_path else 0)
 
@@ -49,14 +49,14 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
     frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
-    codec = cv2.VideoWriter_fourcc(*'XVID')
+    codec = cv2.VideoWriter_fourcc(*CODEC)
 
     # Initialize the VideoWriter for output video
     if output_video_path:
         out = cv2.VideoWriter(output_video_path, codec, fps,
                               (frame_width, frame_height))
 
-    if show and hints:
+    if show:
         print("Press 'f' to toggle face landmarks")
         print("Press 'l' to toggle lips landmarks")
         print("Press 'e' to toggle eye landmarks")
@@ -66,7 +66,7 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
 
     # Initialize MediaPipe face detection
     with FaceLandmarker.create_from_options(options) as landmarker:
-        selected_features = {"face"}
+        selected_features = features
         while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
@@ -97,7 +97,7 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
                         occlude_landmarks(
                             image=occluded_frame,
                             landmark_list=face_landmarks_proto,
-                            connections=feature_dict[feature],
+                            connections=FEATURE_MAP[feature],
                             connection_drawing_spec=DrawingSpec(
                                 color=(0, 0, 0), thickness=1),
                             landmark_drawing_spec=None)

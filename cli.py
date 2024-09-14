@@ -1,7 +1,19 @@
 import argparse
 import os
 from utils import process_videos, process_video, process_camera
-from occlude import occlude_faces
+
+
+def get_features(features):
+    feature_map = {
+        'e': ['left_eye', 'right_eye'],
+        'm': ['lips'],
+        'n': ['nose'],
+        'f': ['face']
+    }
+    feature_list = []
+    for feature in features:
+        feature_list.extend(feature_map[feature])
+    return set(feature_list)
 
 
 def main():
@@ -17,11 +29,14 @@ def main():
                         help='Show the video while processing')
     parser.add_argument('--keep-audio', action='store_true',
                         help='Keep the audio in the output video')
+    parser.add_argument('--features', '-f', type=str, nargs='+', default=['f'],
+                        help='Features to occlude. Options: eyes (e), mouth (m), nose (n), whole face (f). Defaults to whole face.')
     args = parser.parse_args()
 
+    features = get_features(args.features)
     # If no input files are provided, process the webcam feed
     if args.input == None:
-        process_camera(output=args.output, show=args.show)
+        return process_camera(output=args.output, show=args.show, features=features)
     # Single file as input
     if len(args.input) == 1:
         output = args.output
@@ -29,12 +44,12 @@ def main():
             path, ext = os.path.splitext(args.input[0])
             output = f"{path}{args.suffix}{ext}"
 
-        process_video(args.input[0], output,
-                      keep_audio=args.keep_audio, show=args.show)
+        return process_video(args.input[0], output,
+                             keep_audio=args.keep_audio, show=args.show, features=features)
     # If there are multiple input files, output path should be a directory
-    process_videos(args.input,
-                   args.output, keep_audio=args.keep_audio, suffix=args.suffix,
-                   show=args.show)
+    return process_videos(args.input,
+                          args.output, keep_audio=args.keep_audio, suffix=args.suffix,
+                          show=args.show, features=features)
 
 
 if __name__ == '__main__':

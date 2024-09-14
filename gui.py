@@ -4,6 +4,11 @@ from tkinter import ttk
 from utils import process_videos
 
 
+class FeatureOptions(ttk.Frame):
+    def __init__(self, master, feature_dict):
+        super().__init__(master)
+
+
 class App(ttk.Frame):
     def __init__(self, master):
         super().__init__(master)
@@ -45,7 +50,7 @@ class App(ttk.Frame):
 
     def select_videos(self):
         self.selected_files = filedialog.askopenfilenames(
-            filetypes=[("Video files", "*.mp4")])
+            filetypes=[("Video files", ["*.mp4", "*.mkv"])])
         text = ', '.join(
             self.selected_files) if self.selected_files else "No files selected"
         self.selected_files_var.set(text)
