@@ -27,7 +27,7 @@ options = FaceLandmarkerOptions(
 # Mapping of keywords to MediaPipe face mesh features
 FEATURE_MAP = {
     "face": mp.solutions.face_mesh.FACEMESH_TESSELATION,
-    "lips": mp.solutions.face_mesh.FACEMESH_LIPS,
+    "mouth": mp.solutions.face_mesh.FACEMESH_LIPS,
     "left_eye": mp.solutions.face_mesh.FACEMESH_LEFT_EYE,
     "right_eye": mp.solutions.face_mesh.FACEMESH_RIGHT_EYE,
     "left_eyebrow": mp.solutions.face_mesh.FACEMESH_LEFT_EYEBROW,
@@ -58,7 +58,7 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
 
     if show:
         print("Press 'f' to toggle face landmarks")
-        print("Press 'l' to toggle lips landmarks")
+        print("Press 'l' to toggle mouth landmarks")
         print("Press 'e' to toggle eye landmarks")
         print("Press 'n' to toggle nose landmarks")
         print("Press 'o' to toggle oval landmarks")
@@ -121,7 +121,7 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
                 if key == ord('f'):
                     toggle_feature("face")
                 if key == ord('l'):
-                    toggle_feature("lips")
+                    toggle_feature("mouth")
                 if key == ord('e'):
                     toggle_feature("left_eye")
                     toggle_feature("right_eye")

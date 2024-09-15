@@ -12,7 +12,10 @@ def get_features(features):
     }
     feature_list = []
     for feature in features:
-        feature_list.extend(feature_map[feature])
+        if feature in feature_map:
+            feature_list.extend(feature_map[feature])
+        else:
+            feature_list.extend(feature)
     return set(feature_list)
 
 
@@ -40,10 +43,13 @@ def main():
     # Single file as input
     if len(args.input) == 1:
         output = args.output
-        if args.output == None:
+        if output == None:
             path, ext = os.path.splitext(args.input[0])
             output = f"{path}{args.suffix}{ext}"
-
+        elif os.path.isdir(output):
+            basename = os.path.basename(args.input[0])
+            filename, ext = os.path.splitext(basename)
+            output = os.path.join(output, f'{filename}{args.suffix}{ext}')
         return process_video(args.input[0], output,
                              keep_audio=args.keep_audio, show=args.show, features=features)
     # If there are multiple input files, output path should be a directory
