@@ -1,7 +1,7 @@
 
 # Face Occlusion for Videos
 
-This project provides a command-line program and a GUI for occluding facial features in videos. 
+This project provides a command-line program and a GUI for occluding facial features in videos. The goal was to create a simple tool that allows for partial occlusion based on facial regions (e.g. eyes, mouth, nose) and facilitates the processing of many videos in a batch.
 ## Installation
 
 Clone this repository and install the python dependencies, preferably to a virtual environment.
@@ -21,5 +21,4 @@ Occlude whole faces (default behavior) in video files `file1.mp4` and `file2.mp4
 
 ## Demo
 
-Insert gif or link to demo
 
