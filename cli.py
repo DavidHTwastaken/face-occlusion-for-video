@@ -34,6 +34,8 @@ def main():
                         help='Keep the audio in the output video')
     parser.add_argument('--features', '-f', type=str, nargs='+', default=['f'],
                         help='Features to occlude. Options: eyes (e), mouth (m), nose (n), whole face (f). Defaults to whole face.')
+    parser.add_argument('--num_faces', type=int,
+                        help='Sets the number of faces to search for and process', default=1)
     args = parser.parse_args()
 
     features = get_features(args.features)

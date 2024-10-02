@@ -41,7 +41,7 @@ FEATURE_MAP = {
 CODEC = 'XVID'
 
 
-def occlude_faces(input_video_path: str = None, output_video_path: str = None, show=False, features=['face']):
+def occlude_faces(input_video_path: str = None, output_video_path: str = None, show=False, features=['face'], num_faces=1):
     # Open the input video
     cap = cv2.VideoCapture(input_video_path if input_video_path else 0)
 
@@ -64,6 +64,7 @@ def occlude_faces(input_video_path: str = None, output_video_path: str = None, s
         print("Press 'o' to toggle oval landmarks")
         print("Press 'q' to quit")
 
+    options.num_faces = num_faces
     # Initialize MediaPipe face detection
     with FaceLandmarker.create_from_options(options) as landmarker:
         selected_features = features
